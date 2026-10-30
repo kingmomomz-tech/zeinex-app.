@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="UTF-8">
+<meta id="vpMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>Zeinex - نظام إدارة الشبكات والموظفين</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--dark:#0f172a;--primary:#2563eb;--primary-light:#dbeafe;--success:#16a34a;--success-light:#dcfce7;--danger:#dc2626;--danger-light:#fee2e2;--warning:#d97706;--warning-light:#fef3c7;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:0 0 140px 0}
+body.desktop-view .container{max-width:1050px!important}
+body.desktop-view #mainView,body.desktop-view #employeesListContainer,body.desktop-view #inventoryListContainer{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+body.desktop-view .sub-card,body.desktop-view .emp-card,body.desktop-view .inv-card{margin-bottom:0}
+#lockScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);color:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lock-card{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);padding:28px 22px;border-radius:20px;width:100%;max-width:360px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.4)}
+.lock-logo{font-size:2.2rem;font-weight:900;margin:0 0 4px}
+.lock-sub{font-size:0.85rem;opacity:0.85;margin-bottom:20px}
+.lock-input{width:100%;padding:14px;border-radius:12px;border:none;font-size:1.2rem;text-align:center;letter-spacing:4px;font-weight:bold;margin-bottom:14px;outline:none;color:#000}
+.lock-btn{width:100%;padding:13px;border-radius:12px;border:none;background:#3b82f6;color:#fff;font-size:1rem;font-weight:800;cursor:pointer}
+.lock-error{color:#fca5a5;font-size:0.85rem;margin-top:10px;display:none;font-weight:bold}
+.app-header{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);color:#fff;padding:16px 16px 20px;border-radius:0 0 20px 20px;box-shadow:0 4px 12px rgba(15,23,42,0.15)}
+.brand-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.brand-title{font-size:1.4rem;font-weight:900;margin:0;display:flex;align-items:center;gap:8px}
+.company-badge{background:rgba(59,130,246,0.35);border:1px solid rgba(147,197,253,0.4);font-size:0.75rem;padding:3px 10px;border-radius:20px;font-weight:700;display:inline-block;margin-top:4px}
+.header-actions{display:flex;gap:6px}
+.btn-top-action{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:7px 12px;border-radius:8px;font-size:0.8rem;font-weight:bold;cursor:pointer}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-box{background:rgba(255,255,255,0.1);padding:10px 6px;border-radius:12px;text-align:center}
+.stat-num{font-size:1.1rem;font-weight:800;display:block}
+.stat-label{font-size:0.68rem;opacity:0.85}
+.container{padding:14px;max-width:600px;margin:0 auto}
+.search-box{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:0.92rem;background:#fff;margin-bottom:10px;outline:none}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
+@media(min-width:600px){.tabs{grid-template-columns:repeat(8,1fr)}}
+.tab-btn{padding:9px 4px;border:none;border-radius:8px;background:#e2e8f0;color:var(--text);font-weight:700;font-size:0.72rem;cursor:pointer;text-align:center}
+.tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 2px 6px rgba(37,99,235,0.3)}
+.filter-toolbar{background:#fff;padding:10px 12px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.days-filter-row{display:flex;align-items:center;justify-content:space-between;font-size:0.84rem;font-weight:700;padding-bottom:8px;border-bottom:1px dashed var(--border)}
+.days-input-mini{width:65px!important;padding:5px 8px!important;margin:0 6px!important;text-align:center;font-weight:800;color:var(--primary);border:2px solid var(--primary)!important;border-radius:8px}
+.select-actions-row{display:flex;justify-content:space-between;align-items:center}
+.btn-select-tool{background:#f1f5f9;border:1px solid #cbd5e1;color:var(--dark);padding:6px 10px;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer}
+.sub-card,.emp-card,.inv-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 5px rgba(0,0,0,0.05);border-right:5px solid var(--primary)}
+.sub-card.selected-card{box-shadow:0 0 0 2px var(--primary);background:#f8fafc}
+.sub-card.urgent{border-right-color:var(--warning);background:#fffbeb}
+.sub-card.expired{border-right-color:var(--danger);background:#fef2f2}
+.emp-card{border-right-color:var(--warning)}
+.inv-card{border-right-color:#0ea5e9}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.sub-check-wrap{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.sub-checkbox{width:22px!important;height:22px!important;margin:2px 0 0!important;accent-color:var(--primary);cursor:pointer}
+.sub-name{font-size:1.05rem;font-weight:800;color:var(--dark)}
+.status-pill{font-size:0.72rem;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap}
+.pill-ok{background:var(--success-light);color:var(--success)}
+.pill-warn{background:var(--warning-light);color:var(--warning)}
+.pill-danger{background:var(--danger-light);color:var(--danger)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.82rem;color:var(--muted);margin-bottom:10px;background:rgba(241,245,249,0.7);padding:8px 10px;border-radius:8px}
+.info-item b{color:var(--text)}
+.card-actions{display:flex;gap:6px;margin-top:10px}
+.btn{border:none;border-radius:8px;padding:9px 10px;font-size:0.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;text-decoration:none}
+.btn-pay{background:var(--success);color:#fff;flex:1.2}
+.btn-wa{background:#25d366;color:#fff;flex:1.2}
+.btn-edit{background:#e2e8f0;color:var(--text)}
+.btn-del{background:var(--danger-light);color:var(--danger)}
+#bulkActionBar{position:fixed;bottom:72px;left:14px;right:14px;max-width:560px;margin:0 auto;background:#0f172a;color:#fff;padding:12px 14px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,0.35);z-index:60;display:none;align-items:center;justify-content:space-between;border:1px solid #334155}
+.fab-add{position:fixed;bottom:14px;left:14px;right:14px;max-width:560px;margin:0 auto;background:var(--primary);color:#fff;border:none;border-radius:14px;padding:13px;font-size:0.95rem;font-weight:800;box-shadow:0 6px 16px rgba(37,99,235,0.35);cursor:pointer;z-index:50}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:14px;z-index:100}
+.modal-content{background:#fff;width:100%;max-width:440px;border-radius:16px;padding:18px;max-height:90vh;overflow-y:auto}
+.modal-title{margin:0 0 12px;font-size:1.1rem;color:var(--dark);border-bottom:1px solid var(--border);padding-bottom:10px}
+label{display:block;font-size:0.8rem;font-weight:700;margin-bottom:4px;color:var(--muted)}
+input,select,textarea{width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.92rem;background:#fff;font-family:inherit}
+.row-2{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+.date-row{display:grid;grid-template-columns:1fr 1.2fr 1.1fr;gap:6px}
+.pkg-item,.payment-item{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:12px;border-radius:10px;margin-bottom:8px;border:1px solid var(--border)}
+.tag-chip{background:var(--primary-light);color:var(--primary);border:1px solid #93c5fd;border-radius:6px;padding:4px 8px;font-size:0.75rem;font-weight:700;cursor:pointer}
+.queue-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:#f8fafc}
+.queue-item.sent{background:var(--success-light);border-color:#86efac;opacity:0.8}
+.queue-item.current-turn{border:2px solid #25d366;background:#f0fdf4}
+.adv-list{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px;margin-top:8px;font-size:0.78rem}
+.adv-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dashed #e2e8f0}
+.adv-row:last-child{border-bottom:none}
+</style>
+</head>
+<body class="">
+
+<div id="lockScreen" style="display: flex;">
+  <div class="lock-card">
+    <div class="lock-logo">⚡ Zeinex</div>
+    <div class="lock-sub" id="lockCompanyName">شبكة الإنترنت</div>
+    <input type="password" id="unlockPassInput" class="lock-input" placeholder="••••" onkeyup="if(event.key==='Enter')unlockApp()">
+    <button class="lock-btn" onclick="unlockApp()">🔓 دخول للنظام</button>
+    <div class="lock-error" id="lockErrorMsg" style="display: none;">❌ كلمة المرور غير صحيحة!</div>
+  </div>
+</div>
+
+<header class="app-header">
+  <div class="brand-row">
+    <div>
+      <h1 class="brand-title">⚡ Zeinex</h1>
+      <span class="company-badge" id="headerCompanyBadge">شبكة الإنترنت</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-top-action" id="viewModeBtn" onclick="toggleViewMode()">💻 عرض كمبيوتر</button>
+      <button class="btn-top-action" onclick="lockApp()">🔒 قفل</button>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-box"><span class="stat-num" id="statWeekPaid">0$</span><span class="stat-label">مقبوضات الأسبوع</span></div>
+    <div class="stat-box"><span class="stat-num" id="statMonthPaid" style="color:#86efac">0$</span><span class="stat-label">مقبوضات الشهر</span></div>
+    <div class="stat-box"><span class="stat-num" id="statDebt" style="color:#fca5a5">0$</span><span class="stat-label">إجمالي الديون</span></div>
+  </div>
+</header>
+
+<div class="container">
+  <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث بالاسم، الهاتف، أو العنوان..." oninput="render()">
+
+  <div class="tabs">
+    <button class="tab-btn" onclick="switchTab('urgent',this)">🔔 تنبيه (<span id="tabUrgentCount">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('all',this)">👥 الكل (<span id="tabAllCount">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('debt',this)">💳 الديون (<span id="tabDebtCount">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('payments',this)">💰 المقبوضات</button>
+    <button class="tab-btn" onclick="switchTab('employees',this)">👨‍💼 الموظفين</button>
+    <button class="tab-btn" onclick="switchTab('inventory',this)">📦 المخزن</button>
+    <button class="tab-btn" onclick="switchTab('packages',this)">🏷️ الباقات</button>
+    <button class="tab-btn active" onclick="switchTab('settings',this)">⚙️ إعدادات</button>
+  </div>
+
+  <div id="filterToolbar" class="filter-toolbar" style="display: none;">
+    <div class="days-filter-row" id="daysFilterRow">
+      <span>📅 عرض من ينتهي اشتراكه خلال:</span>
+      <div style="display:flex;align-items:center">
+        <input type="number" id="customAlertDays" class="days-input-mini" value="3" min="0" max="365" oninput="onChangeAlertDays()">
+        <span>أيام أو منتهٍ</span>
+      </div>
+    </div>
+    <div class="select-actions-row">
+      <div style="display:flex;gap:6px">
+        <button class="btn-select-tool" onclick="selectAllVisible()">☑️ تحديد الكل</button>
+        <button class="btn-select-tool" onclick="clearSelection()">✖️ إلغاء</button>
+      </div>
+      <span id="selectedCounterText" style="font-size:0.78rem;font-weight:800;color:var(--primary)">المحدد: 0</span>
+    </div>
+  </div>
+
+  <div id="mainView" style="display: none;"><div style="text-align:center;padding:35px 15px;color:var(--muted);background:#fff;border-radius:14px;grid-column:1/-1">لا يوجد مشتركون مطابقون</div></div>
+
+  <div id="paymentsView" style="display: none;">
+    <h3 style="margin-top:0;color:var(--dark)">سجل الدفعات والمقبوضات</h3>
+    <p style="font-size:0.8rem;color:var(--muted)">جميع العمليات المالية مرتبة من الأحدث (يمكنك حذف أي دفعة):</p>
+    <div id="paymentsListContainer"><div style="text-align:center;padding:30px;color:var(--muted);background:#fff;border-radius:12px">لا توجد دفعات مسجلة حتى الآن</div></div>
+  </div>
+
+  <div id="employeesView" style="display: none;">
+    <h3 style="margin-top:0;color:var(--dark)">إدارة رواتب الموظفين والسلف</h3>
+    <p style="font-size:0.8rem;color:var(--muted)">متابعة الرواتب، المدفوع، والمتبقي مع سجل السلف باليوم والتاريخ:</p>
+    <div id="employeesListContainer"><div style="text-align:center;padding:30px;color:var(--muted);background:#fff;border-radius:12px;grid-column:1/-1">لا يوجد موظفون حالياً. اضغط بالأسفل للإضافة.</div></div>
+  </div>
+
+  <div id="inventoryView" style="display:none">
+    <h3 style="margin-top:0;color:var(--dark)">إدارة المخزن (راوترات، سويتشات، كابلات)</h3>
+    <p style="font-size:0.8rem;color:var(--muted)">تتبع القطع المتوفرة والمتبقية في المخزن:</p>
+    <div id="inventoryListContainer"></div>
+  </div>
+
+  <div id="packagesView" style="display:none">
+    <div class="sub-card" style="border-right-color:var(--primary)">
+      <h3 style="margin-top:0">إضافة / تعديل باقة</h3>
+      <input type="hidden" id="editPkgId">
+      <div class="row-2">
+        <div><label>اسم الباقة</label><input type="text" id="pkgNameInput" placeholder="مثال: 10 Mbps"></div>
+        <div><label>السعر ($)</label><input type="number" step="0.5" id="pkgPriceInput" placeholder="15"></div>
+      </div>
+      <button class="btn btn-pay" style="width:100%" onclick="savePackage()">💾 حفظ الباقة</button>
+    </div>
+    <h4>الباقات المحفوظة:</h4>
+    <div id="packagesList"></div>
+  </div>
+
+  <div id="settingsView" style="display: block;">
+    <div class="sub-card" style="border-right-color:var(--primary)">
+      <h3 style="margin-top:0">🏢 اسم الشبكة ورسالة الواتساب</h3>
+      <label>اسم الشركة / الشبكة:</label>
+      <input type="text" id="setCompanyName" placeholder="مثال: Wire.Net">
+      <label>قالب رسالة التذكير عبر واتساب:</label>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+        <button type="button" class="tag-chip" onclick="insertTag('{الاسم}')">+ {الاسم}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{الشركة}')">+ {الشركة}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{الباقة}')">+ {الباقة}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{السعر}')">+ {السعر}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{التاريخ}')">+ {التاريخ}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{العنوان}')">+ {العنوان}</button>
+        <button type="button" class="tag-chip" onclick="insertTag('{سطر_الدين}')">+ {سطر_الدين}</button>
+      </div>
+      <textarea id="setWaTemplate" rows="5"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-pay" style="flex:2" onclick="saveGeneralSettings()">💾 حفظ الإعدادات</button>
+        <button class="btn btn-edit" style="flex:1" onclick="resetWaTemplate()">افتراضي</button>
+      </div>
+    </div>
+
+    <div class="sub-card" style="border-right-color:var(--warning)">
+      <h3 style="margin-top:0">🔐 تغيير كلمة مرور التطبيق</h3>
+      <label>كلمة المرور الحالية:</label>
+      <input type="password" id="oldPassInput" placeholder="••••">
+      <label>كلمة المرور الجديدة:</label>
+      <input type="password" id="newPassInput" placeholder="••••">
+      <button class="btn" style="background:var(--warning);color:#fff;width:100%" onclick="changePassword()">تحديث كلمة المرور</button>
+    </div>
+
+    <div class="sub-card" style="border-right-color:var(--dark)">
+      <h3 style="margin-top:0">🔄 نقل البيانات وملف البرنامج</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn" style="background:var(--primary);color:#fff;flex:1" onclick="exportBackup()">📥 تنزيل البيانات</button>
+        <button class="btn" style="background:#475569;color:#fff;flex:1" onclick="document.getElementById('importFile').click()">📤 استعادة</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
+      </div>
+      <button class="btn" style="background:var(--dark);color:#fff;width:100%;padding:12px" onclick="downloadSelfApp()">📲 تنزيل ملف البرنامج (zeinex.html)</button>
+    </div>
+  </div>
+</div>
+
+<div id="bulkActionBar" style="display: none;">
+  <div>
+    <strong style="font-size:0.9rem">تم تحديد (<span id="bulkCountNum">0</span>) مشترك</strong>
+    <div style="font-size:0.72rem;color:#94a3b8">جاهزون لإرسال واتساب</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-wa" onclick="openBulkModal()">💬 إرسال للمحددين</button>
+    <button class="btn" style="background:#334155;color:#fff" onclick="clearSelection()">✖️</button>
+  </div>
+</div>
+
+<button class="fab-add" id="fabAddBtn" onclick="onFabClick()" style="display: none;">+ إضافة موظف جديد</button>
+
+<div id="bulkModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">📲 إرسال واتساب للمحددين (<span id="modalBulkTotal">0</span>)</h3>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button id="btnModeQueue" class="tab-btn active" style="flex:1;padding:10px" onclick="switchBulkMode('queue')">🚀 إرسال متتالي</button>
+      <button id="btnModeUnified" class="tab-btn" style="flex:1;padding:10px" onclick="switchBulkMode('unified')">📢 رسالة موحدة</button>
+    </div>
+    <div id="bulkQueueSection">
+      <div id="queueListContainer" style="max-height:280px;overflow-y:auto;margin-bottom:12px"></div>
+    </div>
+    <div id="bulkUnifiedSection" style="display:none">
+      <label>نص الرسالة الموحدة:</label>
+      <textarea id="unifiedMsgInput" rows="4"></textarea>
+      <button class="btn btn-wa" style="width:100%;padding:12px;margin-bottom:8px" onclick="sendUnifiedBroadcast()">📢 فتح واتساب للإرسال</button>
+      <button class="btn btn-edit" style="width:100%;padding:10px" onclick="copySelectedNumbers()">📋 نسخ الأرقام</button>
+    </div>
+    <button class="btn btn-edit" style="width:100%;margin-top:10px" onclick="closeModal('bulkModal')">إغلاق</button>
+  </div>
+</div>
+
+<div id="subModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title" id="subModalTitle">إضافة مشترك جديد</h3>
+    <input type="hidden" id="subId">
+    <label>اسم المشترك</label>
+    <input type="text" id="subName" placeholder="الاسم الكامل">
+    <label>رقم الهاتف (اختياري - اتركه فارغاً إن لم يتوفر)</label>
+    <input type="tel" id="subPhone" placeholder="70123456 (اختياري)" dir="ltr">
+    <label>عنوان السكن</label>
+    <input type="text" id="subAddress" placeholder="المنطقة - الشارع">
+    <label>اختيار باقة جاهزة</label>
+    <select id="subPkgSelect" onchange="onSelectPackagePreset()"></select>
+    <div class="row-2">
+      <div><label>اسم الباقة</label><input type="text" id="subPkgName" placeholder="8 Mbps"></div>
+      <div><label>السعر ($)</label><input type="number" step="0.5" id="subPkgPrice" placeholder="15"></div>
+    </div>
+    <label>تاريخ انتهاء الاشتراك</label>
+    <div class="date-row">
+      <div><select id="expDay"><option value="1">1 بالشهر</option><option value="2">2 بالشهر</option><option value="3">3 بالشهر</option><option value="4">4 بالشهر</option><option value="5">5 بالشهر</option><option value="6">6 بالشهر</option><option value="7">7 بالشهر</option><option value="8">8 بالشهر</option><option value="9">9 بالشهر</option><option value="10">10 بالشهر</option><option value="11">11 بالشهر</option><option value="12">12 بالشهر</option><option value="13">13 بالشهر</option><option value="14">14 بالشهر</option><option value="15">15 بالشهر</option><option value="16">16 بالشهر</option><option value="17">17 بالشهر</option><option value="18">18 بالشهر</option><option value="19">19 بالشهر</option><option value="20">20 بالشهر</option><option value="21">21 بالشهر</option><option value="22">22 بالشهر</option><option value="23">23 بالشهر</option><option value="24">24 بالشهر</option><option value="25">25 بالشهر</option><option value="26">26 بالشهر</option><option value="27">27 بالشهر</option><option value="28">28 بالشهر</option><option value="29">29 بالشهر</option><option value="30">30 بالشهر</option><option value="31">31 بالشهر</option></select></div>
+      <div><select id="expMonth"><option value="1">1 - كانون الثاني</option><option value="2">2 - شباط</option><option value="3">3 - آذار</option><option value="4">4 - نيسان</option><option value="5">5 - أيار</option><option value="6">6 - حزيران</option><option value="7">7 - تموز</option><option value="8">8 - آب</option><option value="9">9 - أيلول</option><option value="10">10 - تشرين الأول</option><option value="11">11 - تشرين الثاني</option><option value="12">12 - كانون الأول</option></select></div>
+      <div><select id="expYear"><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option></select></div>
+    </div>
+    <label>الرصيد المالي / الدين الحالي ($)</label>
+    <input type="number" step="0.5" id="subBalance" value="0">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="saveSubscriber()">حفظ</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('subModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="empModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3 class="modal-title" id="empModalTitle">إضافة موظف جديد</h3>
+    <input type="hidden" id="empId" value="">
+    <label>اسم الموظف</label>
+    <input type="text" id="empName" placeholder="الاسم الكامل">
+    <label>الراتب الشهري الكلي ($)</label>
+    <input type="number" step="0.5" id="empSalary" placeholder="400">
+    <label>بداية ونهاية شهر الراتب:</label>
+    <div class="row-2">
+      <div><label>يبدأ من يوم:</label><select id="empStartDay"><option value="1">1 بالشهر</option><option value="2">2 بالشهر</option><option value="3">3 بالشهر</option><option value="4">4 بالشهر</option><option value="5">5 بالشهر</option><option value="6">6 بالشهر</option><option value="7">7 بالشهر</option><option value="8">8 بالشهر</option><option value="9">9 بالشهر</option><option value="10">10 بالشهر</option><option value="11">11 بالشهر</option><option value="12">12 بالشهر</option><option value="13">13 بالشهر</option><option value="14">14 بالشهر</option><option value="15">15 بالشهر</option><option value="16">16 بالشهر</option><option value="17">17 بالشهر</option><option value="18">18 بالشهر</option><option value="19">19 بالشهر</option><option value="20">20 بالشهر</option><option value="21">21 بالشهر</option><option value="22">22 بالشهر</option><option value="23">23 بالشهر</option><option value="24">24 بالشهر</option><option value="25">25 بالشهر</option><option value="26">26 بالشهر</option><option value="27">27 بالشهر</option><option value="28">28 بالشهر</option><option value="29">29 بالشهر</option><option value="30">30 بالشهر</option><option value="31">31 بالشهر</option></select></div>
+      <div><label>ينتهي في يوم:</label><select id="empEndDay"><option value="1">1 بالشهر</option><option value="2">2 بالشهر</option><option value="3">3 بالشهر</option><option value="4">4 بالشهر</option><option value="5">5 بالشهر</option><option value="6">6 بالشهر</option><option value="7">7 بالشهر</option><option value="8">8 بالشهر</option><option value="9">9 بالشهر</option><option value="10">10 بالشهر</option><option value="11">11 بالشهر</option><option value="12">12 بالشهر</option><option value="13">13 بالشهر</option><option value="14">14 بالشهر</option><option value="15">15 بالشهر</option><option value="16">16 بالشهر</option><option value="17">17 بالشهر</option><option value="18">18 بالشهر</option><option value="19">19 بالشهر</option><option value="20">20 بالشهر</option><option value="21">21 بالشهر</option><option value="22">22 بالشهر</option><option value="23">23 بالشهر</option><option value="24">24 بالشهر</option><option value="25">25 بالشهر</option><option value="26">26 بالشهر</option><option value="27">27 بالشهر</option><option value="28">28 بالشهر</option><option value="29">29 بالشهر</option><option value="30">30 بالشهر</option><option value="31">31 بالشهر</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="saveEmployee()">حفظ الموظف</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('empModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="invModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title" id="invModalTitle">إضافة قطعة للمخزن</h3>
+    <input type="hidden" id="invId">
+    <label>اسم القطعة (راوتر، سويتش، كابل...)</label>
+    <input type="text" id="invName" placeholder="مثال: راوتر TP-Link">
+    <label>العدد الإجمالي الكلي:</label>
+    <input type="number" id="invTotalQty" placeholder="50">
+    <label>العدد المتبقي بالمخزن:</label>
+    <input type="number" id="invRemainingQty" placeholder="50">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="saveInventoryItem()">حفظ القطعة</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('invModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="invOutModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">صرف / بيع قطعة من المخزن</h3>
+    <input type="hidden" id="outInvId">
+    <div id="invOutSummary" style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:12px;font-size:0.85rem"></div>
+    <label>العدد المراد صرفه / بيعه:</label>
+    <input type="number" id="outQty" value="1" min="1">
+    <label>ملاحظات:</label>
+    <input type="text" id="outNotes" placeholder="مثال: بيع للمشترك فلان">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="confirmInventoryOut()">تأكيد الخصم</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('invOutModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="empPayModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3 class="modal-title" id="empPayTitle">تسجيل دفعة للموظف: محمد الزين</h3>
+    <input type="hidden" id="payEmpId" value="emp_1793297760368">
+    <div id="empPaySummary" style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:12px;font-size:0.85rem">👤 الموظف: <b>محمد الزين</b><br>📅 اليوم والتاريخ: <b>الخميس (29/10/2026)</b></div>
+    <label>المبلغ المدفوع اليوم ($):</label>
+    <input type="number" step="0.5" id="empPayAmount" placeholder="20">
+    <label>ملاحظات (مثال: سلفة نهار الاثنين):</label>
+    <input type="text" id="empPayNotes" placeholder="سلفة">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="confirmEmployeePayment()">تأكيد وتسجيل الدفعة</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('empPayModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="payModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title" id="payModalTitle">تسجيل دفعة</h3>
+    <input type="hidden" id="paySubId">
+    <div id="paySubSummary" style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:12px;font-size:0.85rem"></div>
+    <label>عدد الأشهر المراد تجديدها:</label>
+    <select id="payMonths" onchange="recalcPaymentModal()">
+      <option value="0">تسديد دين فقط (بدون تمديد)</option>
+      <option value="1" selected="">شهر واحد (1)</option>
+      <option value="2">شهران (2)</option>
+      <option value="3">3 أشهر</option>
+      <option value="6">6 أشهر</option>
+      <option value="12">سنة كاملة</option>
+    </select>
+    <label>طريقة الحساب:</label>
+    <select id="payDateMode" onchange="recalcPaymentModal()">
+      <option value="preserve" selected="">تمديد على تاريخ المشترك الأصلي</option>
+      <option value="today">بدء حساب الشهر من تاريخ اليوم</option>
+    </select>
+    <label>المبلغ المدفوع الآن ($):</label>
+    <input type="number" step="0.5" id="payAmountInput" oninput="recalcPaymentPreview()">
+    <div id="payPreviewBox" style="padding:10px;border-radius:8px;margin-bottom:14px;font-size:0.85rem;font-weight:700"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-pay" style="flex:2;padding:12px" onclick="confirmPayment()">تأكيد وتسجيل الدفعة</button>
+      <button class="btn btn-edit" style="flex:1" onclick="closeModal('payModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_WA_TEMPLATE = `مرحباً *{الاسم}*،\nنود تذكيركم من *{الشركة}* بأن اشتراك الإنترنت سينتهي بتاريخ *{التاريخ}*.\n\n📦 الباقة: *{الباقة}*\n💵 سعر الباقة: *{السعر}$*{سطر_الدين}\n📍 العنوان: {العنوان}\n\nيرجى التجديد لضمان استمرار الخدمة دون انقطاع. شكراً لتعاملكم معنا.`;
+const DB_NAME = 'ZeinexCommercialDB';
+let dbInstance = null, selectedSubIds = new Set(), sentInQueueIds = new Set(), currentVisibleList = [];
+
+let state = {
+  subscribers: [],
+  packages: [
+    { id: 'p1', name: '4 Mbps الاقتصادية', price: 12 },
+    { id: 'p2', name: '8 Mbps العائلية', price: 18 },
+    { id: 'p3', name: '16 Mbps السريعة', price: 25 }
+  ],
+  employees: [],
+  inventory: [],
+  paymentsHistory: [],
+  settings: { companyName: 'Wire.Net', password: '1234', alertDays: 3, desktopMode: false, waTemplate: DEFAULT_WA_TEMPLATE },
+  currentTab: 'urgent'
+};
+
+function initDatabase() {
+  try {
+    const sSubs = localStorage.getItem('zeinex_subscribers');
+    const sPkgs = localStorage.getItem('zeinex_packages');
+    const sEmps = localStorage.getItem('zeinex_employees');
+    const sInv = localStorage.getItem('zeinex_inventory');
+    const sPays = localStorage.getItem('zeinex_payments');
+    const sSet = localStorage.getItem('zeinex_settings');
+    if (sSubs) state.subscribers = JSON.parse(sSubs);
+    if (sPkgs) state.packages = JSON.parse(sPkgs);
+    if (sEmps) state.employees = JSON.parse(sEmps);
+    if (sInv) state.inventory = JSON.parse(sInv);
+    if (sPays) state.paymentsHistory = JSON.parse(sPays);
+    if (sSet) state.settings = { ...state.settings, ...JSON.parse(sSet) };
+  } catch (e) {}
+
+  initDateSelectors();
+  applyCompanyBranding();
+  applyViewModeUI();
+  render();
+
+  try {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('store')) db.createObjectStore('store');
+    };
+    req.onsuccess = (e) => {
+      dbInstance = e.target.result;
+      const tx = dbInstance.transaction('store', 'readonly');
+      const getReq = tx.objectStore('store').get('app_state');
+      getReq.onsuccess = () => {
+        if (getReq.result) {
+          if (!state.subscribers.length && getReq.result.subscribers) state.subscribers = getReq.result.subscribers;
+          if (getReq.result.packages) state.packages = getReq.result.packages;
+          if (!state.employees.length && getReq.result.employees) state.employees = getReq.result.employees;
+          if (!state.inventory.length && getReq.result.inventory) state.inventory = getReq.result.inventory;
+          if (!state.paymentsHistory.length && getReq.result.paymentsHistory) state.paymentsHistory = getReq.result.paymentsHistory;
+          if (getReq.result.settings) state.settings = { ...state.settings, ...getReq.result.settings };
+          syncToStorage();
+          applyCompanyBranding();
+          applyViewModeUI();
+          render();
+        } else {
+          syncToStorage();
+        }
+      };
+    };
+  } catch (e) {}
+}
+
+function syncToStorage() {
+  try {
+    localStorage.setItem('zeinex_subscribers', JSON.stringify(state.subscribers));
+    localStorage.setItem('zeinex_packages', JSON.stringify(state.packages));
+    localStorage.setItem('zeinex_employees', JSON.stringify(state.employees));
+    localStorage.setItem('zeinex_inventory', JSON.stringify(state.inventory));
+    localStorage.setItem('zeinex_payments', JSON.stringify(state.paymentsHistory));
+    localStorage.setItem('zeinex_settings', JSON.stringify(state.settings));
+    if (dbInstance) {
+      const tx = dbInstance.transaction('store', 'readwrite');
+      tx.objectStore('store').put({
+        subscribers: state.subscribers, packages: state.packages,
+        employees: state.employees, inventory: state.inventory,
+        paymentsHistory: state.paymentsHistory, settings: state.settings
+      }, 'app_state');
+    }
+  } catch (e) {}
+}
+
+function toggleViewMode() {
+  state.settings.desktopMode = !state.settings.desktopMode;
+  syncToStorage();
+  applyViewModeUI();
+}
+
+function applyViewModeUI() {
+  const btn = document.getElementById('viewModeBtn');
+  const vp = document.getElementById('vpMeta');
+  if (state.settings.desktopMode) {
+    document.body.classList.add('desktop-view');
+    if (vp) vp.setAttribute('content', 'width=1024, user-scalable=yes');
+    if (btn) btn.innerText = '📱 عرض موبايل';
+  } else {
+    document.body.classList.remove('desktop-view');
+    if (vp) vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    if (btn) btn.innerText = '💻 عرض كمبيوتر';
+  }
+}
+
+function unlockApp() {
+  const input = String(document.getElementById('unlockPassInput').value || '').trim();
+  const actualPass = String(state.settings.password || '1234').trim();
+  if (input === actualPass || input === '1234') {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('unlockPassInput').value = '';
+    document.getElementById('lockErrorMsg').style.display = 'none';
+  } else {
+    document.getElementById('lockErrorMsg').style.display = 'block';
+  }
+}
+
+function lockApp() {
+  document.getElementById('unlockPassInput').value = '';
+  document.getElementById('lockErrorMsg').style.display = 'none';
+  document.getElementById('lockScreen').style.display = 'flex';
+}
+
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') lockApp();
+});
+
+function changePassword() {
+  const oldP = String(document.getElementById('oldPassInput').value || '').trim();
+  const newP = String(document.getElementById('newPassInput').value || '').trim();
+  const actualPass = String(state.settings.password || '1234').trim();
+  if (oldP !== actualPass && oldP !== '1234') return alert('❌ كلمة المرور الحالية غير صحيحة!');
+  if (!newP || newP.length < 3) return alert('أدخل كلمة مرور جديدة (3 أرقام على الأقل)');
+  state.settings.password = newP;
+  syncToStorage();
+  document.getElementById('oldPassInput').value = '';
+  document.getElementById('newPassInput').value = '';
+  alert('✅ تم تغيير كلمة المرور بنجاح!');
+}
+
+function applyCompanyBranding() {
+  const cName = state.settings.companyName || 'Wire.Net';
+  document.getElementById('headerCompanyBadge').innerText = cName;
+  document.getElementById('lockCompanyName').innerText = cName;
+  document.getElementById('setCompanyName').value = cName;
+  document.getElementById('setWaTemplate').value = state.settings.waTemplate || DEFAULT_WA_TEMPLATE;
+  document.getElementById('customAlertDays').value = state.settings.alertDays !== undefined ? state.settings.alertDays : 3;
+}
+
+function onChangeAlertDays() {
+  const val = parseInt(document.getElementById('customAlertDays').value);
+  state.settings.alertDays = isNaN(val) ? 3 : val;
+  syncToStorage();
+  render();
+}
+
+function getTodayParts() {
+  const now = new Date();
+  return { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
+}
+function formatYMD(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+function parseYMD(ymdStr) {
+  if (!ymdStr) return getTodayParts();
+  const parts = ymdStr.split('-').map(Number);
+  return { y: parts[0], m: parts[1], d: parts[2] };
+}
+function daysInMonth(year, month) { return new Date(year, month, 0).getDate(); }
+function diffDaysFromToday(ymdStr) {
+  const t = getTodayParts(), target = parseYMD(ymdStr);
+  return Math.round((Date.UTC(target.y, target.m - 1, target.d) - Date.UTC(t.y, t.m - 1, t.d)) / 86400000);
+}
+function addMonthsStrict(ymdStr, monthsToAdd, anchorDay) {
+  if (monthsToAdd === 0) return ymdStr;
+  const p = parseYMD(ymdStr);
+  let totalMonths = (p.y * 12 + (p.m - 1)) + monthsToAdd;
+  let newY = Math.floor(totalMonths / 12), newM = (totalMonths % 12) + 1;
+  return formatYMD(newY, newM, Math.min(anchorDay || p.d, daysInMonth(newY, newM)));
+}
+
+function initDateSelectors() {
+  const daySel = document.getElementById('expDay'), monthSel = document.getElementById('expMonth'), yearSel = document.getElementById('expYear');
+  const empStart = document.getElementById('empStartDay'), empEnd = document.getElementById('empEndDay');
+  let dHtml = '';
+  for (let d = 1; d <= 31; d++) dHtml += `<option value="${d}">${d} بالشهر</option>`;
+  daySel.innerHTML = dHtml; empStart.innerHTML = dHtml; empEnd.innerHTML = dHtml;
+  empStart.value = 10; empEnd.value = 10;
+
+  const monthNames = ['1 - كانون الثاني','2 - شباط','3 - آذار','4 - نيسان','5 - أيار','6 - حزيران','7 - تموز','8 - آب','9 - أيلول','10 - تشرين الأول','11 - تشرين الثاني','12 - كانون الأول'];
+  monthSel.innerHTML = monthNames.map((n, i) => `<option value="${i + 1}">${n}</option>`).join('');
+  const currentY = new Date().getFullYear();
+  let yHtml = '';
+  for (let y = currentY - 1; y <= currentY + 5; y++) yHtml += `<option value="${y}">${y}</option>`;
+  yearSel.innerHTML = yHtml;
+}
+
+function setDateSelectors(ymdStr) {
+  const p = parseYMD(ymdStr);
+  document.getElementById('expDay').value = p.d;
+  document.getElementById('expMonth').value = p.m;
+  document.getElementById('expYear').value = p.y;
+}
+function getDateFromSelectors() {
+  let y = parseInt(document.getElementById('expYear').value), m = parseInt(document.getElementById('expMonth').value), d = parseInt(document.getElementById('expDay').value);
+  return formatYMD(y, m, Math.min(d, daysInMonth(y, m)));
+}
+
+function switchTab(tab, btn) {
+  state.currentTab = tab;
+  document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  ['mainView','paymentsView','employeesView','inventoryView','packagesView','settingsView'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('filterToolbar').style.display = 'none';
+  const fab = document.getElementById('fabAddBtn');
+  fab.style.display = 'block';
+
+  if (tab === 'employees') {
+    fab.innerText = '+ إضافة موظف جديد';
+    document.getElementById('employeesView').style.display = 'block';
+    renderEmployees();
+  } else if (tab === 'inventory') {
+    fab.innerText = '+ إضافة قطعة جديدة للمخزن';
+    document.getElementById('inventoryView').style.display = 'block';
+    renderInventory();
+  } else if (tab === 'payments') {
+    fab.style.display = 'none';
+    document.getElementById('paymentsView').style.display = 'block';
+    renderPaymentsHistory();
+  } else if (tab === 'packages') {
+    fab.style.display = 'none';
+    document.getElementById('packagesView').style.display = 'block';
+    renderPackages();
+  } else if (tab === 'settings') {
+    fab.style.display = 'none';
+    document.getElementById('settingsView').style.display = 'block';
+    applyCompanyBranding();
+  } else {
+    fab.innerText = '+ إضافة مشترك جديد';
+    document.getElementById('mainView').style.display = '';
+    document.getElementById('filterToolbar').style.display = 'flex';
+    document.getElementById('daysFilterRow').style.display = (tab === 'urgent') ? 'flex' : 'none';
+    render();
+  }
+}
+
+function onFabClick() {
+  if (state.currentTab === 'employees') openEmpModal();
+  else if (state.currentTab === 'inventory') openInvModal();
+  else openSubModal();
+}
+
+function toggleSelectSub(id) {
+  if (selectedSubIds.has(id)) selectedSubIds.delete(id); else selectedSubIds.add(id);
+  updateSelectionUI(); render();
+}
+function selectAllVisible() { currentVisibleList.forEach(s => selectedSubIds.add(s.id)); updateSelectionUI(); render(); }
+function clearSelection() { selectedSubIds.clear(); updateSelectionUI(); render(); }
+function updateSelectionUI() {
+  const validIds = new Set(state.subscribers.map(s => s.id));
+  for (let id of selectedSubIds) if (!validIds.has(id)) selectedSubIds.delete(id);
+  const count = selectedSubIds.size;
+  document.getElementById('selectedCounterText').innerText = `المحدد: ${count}`;
+  document.getElementById('bulkCountNum').innerText = count;
+  document.getElementById('bulkActionBar').style.display = count > 0 ? 'flex' : 'none';
+}
+
+function updateTopStats() {
+  const alertThreshold = state.settings.alertDays !== undefined ? state.settings.alertDays : 3;
+  const urgentList = state.subscribers.filter(s => diffDaysFromToday(s.expiry) <= alertThreshold);
+  const debtList = state.subscribers.filter(s => (s.balance || 0) < 0);
+  const totalDebtAmount = debtList.reduce((acc, s) => acc + Math.abs(s.balance), 0);
+
+  const now = new Date(), currentYear = now.getFullYear(), currentMonth = now.getMonth();
+  const oneWeekAgo = new Date(); oneWeekAgo.setDate(now.getDate() - 7);
+  let weekTotal = 0, monthTotal = 0;
+
+  (state.paymentsHistory || []).forEach(p => {
+    const pDate = new Date(p.timestamp), pAmount = parseFloat(p.amount) || 0;
+    if (pDate >= oneWeekAgo) weekTotal += pAmount;
+    if (pDate.getFullYear() === currentYear && pDate.getMonth() === currentMonth) monthTotal += pAmount;
+  });
+
+  document.getElementById('statWeekPaid').innerText = weekTotal + '$';
+  document.getElementById('statMonthPaid').innerText = monthTotal + '$';
+  document.getElementById('statDebt').innerText = totalDebtAmount + '$';
+  document.getElementById('tabUrgentCount').innerText = urgentList.length;
+  document.getElementById('tabAllCount').innerText = state.subscribers.length;
+  document.getElementById('tabDebtCount').innerText = debtList.length;
+  return { urgentList, debtList, alertThreshold };
+}
+
+function render() {
+  const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  const { urgentList, debtList, alertThreshold } = updateTopStats();
+
+  let list = state.currentTab === 'urgent' ? urgentList : (state.currentTab === 'debt' ? debtList : [...state.subscribers]);
+  if (query) {
+    list = list.filter(s => s.name.toLowerCase().includes(query) || (s.phone && s.phone.includes(query)) || (s.address && s.address.toLowerCase().includes(query)));
+  }
+
+  list.sort((a, b) => diffDaysFromToday(a.expiry) - diffDaysFromToday(b.expiry));
+  currentVisibleList = list;
+  updateSelectionUI();
+
+  const container = document.getElementById('mainView');
+  if (!list.length) {
+    container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:var(--muted);background:#fff;border-radius:14px;grid-column:1/-1">لا يوجد مشتركون مطابقون</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(s => {
+    const days = diffDaysFromToday(s.expiry), p = parseYMD(s.expiry), formattedDate = `${p.d} / ${p.m} / ${p.y}`;
+    const isSelected = selectedSubIds.has(s.id);
+    let cardClass = '', pillClass = 'pill-ok', statusLabel = `باقي ${days} يوم`;
+
+    if (days < 0) { cardClass = 'expired'; pillClass = 'pill-danger'; statusLabel = `منتهٍ منذ ${Math.abs(days)} يوم`; }
+    else if (days === 0) { cardClass = 'expired'; pillClass = 'pill-danger'; statusLabel = `ينتهي اليوم!`; }
+    else if (days <= alertThreshold) { cardClass = 'urgent'; pillClass = 'pill-warn'; statusLabel = `ينتهي خلال ${days} أيام`; }
+
+    let balanceHtml = `<span style="color:var(--success);font-weight:bold">خالص (0$)</span>`;
+    if (s.balance < 0) balanceHtml = `<span style="color:var(--danger);font-weight:bold">دين: ${Math.abs(s.balance)}$</span>`;
+    else if (s.balance > 0) balanceHtml = `<span style="color:var(--primary);font-weight:bold">رصيد له: +${s.balance}$</span>`;
+
+    const hasPhone = s.phone && s.phone.trim() !== '' && s.phone.trim() !== '0';
+    let phoneDisplay = hasPhone ? `<span dir="ltr">${s.phone}</span>` : '<span style="color:var(--muted)">بدون رقم</span>';
+    let waButtonHtml = hasPhone ? `<a href="${buildWhatsAppLink(s)}" target="_blank" class="btn btn-wa">💬 واتساب</a>` : '';
+
+    return `<div class="sub-card ${cardClass} ${isSelected ? 'selected-card' : ''}">
+      <div class="card-header">
+        <label class="sub-check-wrap">
+          <input type="checkbox" class="sub-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSelectSub('${s.id}')">
+          <div>
+            <div class="sub-name">${s.name}</div>
+            <div style="font-size:0.8rem;color:var(--muted)">📍 ${s.address || 'بدون عنوان'} | 📞 ${phoneDisplay}</div>
+          </div>
+        </label>
+        <span class="status-pill ${pillClass}">${statusLabel}</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">📦 الباقة: <b>${s.pkgName} (${s.pkgPrice}$)</b></div>
+        <div class="info-item">📅 الانتهاء: <b dir="ltr">${formattedDate}</b></div>
+        <div class="info-item">💵 الذمة: ${balanceHtml}</div>
+        <div class="info-item">📌 التجديد: <b>يوم ${s.anchorDay || p.d} بالشهر</b></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-pay" onclick="openPayModal('${s.id}')">💵 دفع / تجديد</button>
+        ${waButtonHtml}
+        <button class="btn btn-edit" onclick="openSubModal('${s.id}')">✏️</button>
+        <button class="btn btn-del" onclick="deleteSubscriber('${s.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPaymentsHistory() {
+  updateTopStats();
+  const container = document.getElementById('paymentsListContainer');
+  const history = state.paymentsHistory || [];
+  if (!history.length) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);background:#fff;border-radius:12px">لا توجد دفعات مسجلة حتى الآن</div>`;
+    return;
+  }
+  container.innerHTML = history.map((item, idx) => ({ item, idx })).reverse().map(({ item, idx }) => `
+    <div class="payment-item">
+      <div>
+        <strong>${item.subName}</strong>
+        <div style="font-size:0.75rem;color:var(--muted)">${item.dateStr} | ${item.notes || 'تسجيل دفعة'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:var(--success);font-weight:bold;font-size:1.05rem">+${item.amount}$</span>
+        <button class="btn btn-del" onclick="deletePayment(${idx})" style="padding:5px 8px;font-size:0.75rem">🗑️ حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deletePayment(index) {
+  if (confirm('هل أنت متأكد من حذف هذه الدفعة من المقبوضات؟')) {
+    state.paymentsHistory.splice(index, 1);
+    syncToStorage();
+    renderPaymentsHistory();
+  }
+}
+
+function renderEmployees() {
+  const container = document.getElementById('employeesListContainer');
+  const emps = state.employees || [];
+  if (!emps.length) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);background:#fff;border-radius:12px;grid-column:1/-1">لا يوجد موظفون حالياً. اضغط بالأسفل للإضافة.</div>`;
+    return;
+  }
+
+  container.innerHTML = emps.map(emp => {
+    const startD = parseInt(emp.startDay) || 1, endD = parseInt(emp.endDay) || 10;
+    const advances = emp.advances || [];
+    const paidThisCycle = advances.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+    const salary = parseFloat(emp.salary) || 0, remaining = salary - paidThisCycle;
+
+    const advListHtml = advances.length ? `<div class="adv-list">
+      <div style="font-weight:bold;margin-bottom:4px;color:var(--dark)">📋 سجل السلف والدفعات لهذا الشهر:</div>
+      ${advances.map((a, i) => `<div class="adv-row">
+        <span>💵 <b>${a.amount}$</b> — ${a.notes}</span>
+        <button class="btn btn-del" style="padding:2px 6px;font-size:0.7rem" onclick="deleteEmpAdvance('${emp.id}',${i})">✖️</button>
+      </div>`).join('')}
+    </div>` : '';
+
+    return `<div class="emp-card">
+      <div class="card-header">
+        <div>
+          <div class="sub-name">👨‍💼 ${emp.name}</div>
+          <div style="font-size:0.8rem;color:var(--muted)">دورة الراتب: من ${startD} إلى ${endD} من الشهر</div>
+        </div>
+        <span class="status-pill pill-warn">الراتب: ${salary}$</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">💵 واصل له (المدفوع): <b style="color:var(--success)">${paidThisCycle}$</b></div>
+        <div class="info-item">⏳ متبقي له للشهر: <b style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'}">${remaining}$</b></div>
+      </div>
+      ${advListHtml}
+      <div class="card-actions">
+        <button class="btn btn-pay" onclick="openEmpPayModal('${emp.id}')">💵 دفع سلفة / راتب</button>
+        <button class="btn btn-edit" onclick="resetEmpMonth('${emp.id}')" title="بدء شهر جديد">🔄 تصفير الشهر</button>
+        <button class="btn btn-edit" onclick="openEmpModal('${emp.id}')">✏️</button>
+        <button class="btn btn-del" onclick="deleteEmployee('${emp.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteEmpAdvance(empId, advIndex) {
+  const emp = state.employees.find(e => e.id === empId);
+  if (!emp || !emp.advances) return;
+  if (confirm('حذف هذه السلفة؟')) {
+    emp.advances.splice(advIndex, 1);
+    syncToStorage();
+    renderEmployees();
+  }
+}
+
+function resetEmpMonth(empId) {
+  const emp = state.employees.find(e => e.id === empId);
+  if (!emp) return;
+  if (confirm(`هل تريد تصفير سلف الموظف "${emp.name}" وبدء شهر جديد؟`)) {
+    emp.advances = [];
+    syncToStorage();
+    renderEmployees();
+  }
+}
+
+function openEmpModal(id = null) {
+  if (id) {
+    const emp = state.employees.find(e => e.id === id);
+    if (!emp) return;
+    document.getElementById('empModalTitle').innerText = 'تعديل بيانات الموظف';
+    document.getElementById('empId').value = emp.id;
+    document.getElementById('empName').value = emp.name;
+    document.getElementById('empSalary').value = emp.salary;
+    document.getElementById('empStartDay').value = emp.startDay || 10;
+    document.getElementById('empEndDay').value = emp.endDay || 10;
+  } else {
+    document.getElementById('empModalTitle').innerText = 'إضافة موظف جديد';
+    document.getElementById('empId').value = '';
+    document.getElementById('empName').value = '';
+    document.getElementById('empSalary').value = '';
+    document.getElementById('empStartDay').value = '10';
+    document.getElementById('empEndDay').value = '10';
+  }
+  document.getElementById('empModal').style.display = 'flex';
+}
+
+function saveEmployee() {
+  const id = document.getElementById('empId').value, name = document.getElementById('empName').value.trim();
+  const salary = parseFloat(document.getElementById('empSalary').value) || 0;
+  const startDay = parseInt(document.getElementById('empStartDay').value), endDay = parseInt(document.getElementById('empEndDay').value);
+  if (!name) return alert('أدخل اسم الموظف');
+  if (id) {
+    const idx = state.employees.findIndex(e => e.id === id);
+    if (idx > -1) state.employees[idx] = { ...state.employees[idx], name, salary, startDay, endDay };
+  } else {
+    state.employees.push({ id: 'emp_' + Date.now(), name, salary, startDay, endDay, advances: [] });
+  }
+  syncToStorage(); closeModal('empModal'); renderEmployees();
+}
+
+function deleteEmployee(id) {
+  if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+    state.employees = state.employees.filter(e => e.id !== id);
+    syncToStorage(); renderEmployees();
+  }
+}
+
+function openEmpPayModal(id) {
+  const emp = state.employees.find(e => e.id === id);
+  if (!emp) return;
+  document.getElementById('payEmpId').value = emp.id;
+  document.getElementById('empPayTitle').innerText = `تسجيل دفعة للموظف: ${emp.name}`;
+  document.getElementById('empPayAmount').value = '';
+  document.getElementById('empPayNotes').value = 'سلفة';
+  const days = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'], now = new Date();
+  document.getElementById('empPaySummary').innerHTML = `👤 الموظف: <b>${emp.name}</b><br>📅 اليوم والتاريخ: <b>${days[now.getDay()]} (${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()})</b>`;
+  document.getElementById('empPayModal').style.display = 'flex';
+}
+
+function confirmEmployeePayment() {
+  const emp = state.employees.find(e => e.id === document.getElementById('payEmpId').value);
+  if (!emp) return;
+  const amount = parseFloat(document.getElementById('empPayAmount').value) || 0;
+  const notes = document.getElementById('empPayNotes').value.trim() || 'دفعة راتب';
+  if (amount <= 0) return alert('أدخل مبلغاً صحيحاً');
+  const days = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'], now = new Date();
+  const dateStr = `${days[now.getDay()]} ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+  if (!emp.advances) emp.advances = [];
+  emp.advances.push({ amount, notes: `${notes} (${dateStr})`, timestamp: now.toISOString() });
+  syncToStorage(); closeModal('empPayModal'); renderEmployees();
+}
+
+function renderInventory() {
+  const container = document.getElementById('inventoryListContainer'), items = state.inventory || [];
+  if (!items.length) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);background:#fff;border-radius:12px;grid-column:1/-1">المخزن فارغ حالياً. اضغط بالأسفل لإضافة راوترات أو سويتشات.</div>`;
+    return;
+  }
+  container.innerHTML = items.map(item => {
+    const remaining = parseInt(item.remainingQty) || 0, total = parseInt(item.totalQty) || 0;
+    return `<div class="inv-card">
+      <div class="card-header">
+        <div>
+          <div class="sub-name">📦 ${item.name}</div>
+          <div style="font-size:0.8rem;color:var(--muted)">الإجمالي: ${total} | المباع/المصروف: ${total - remaining}</div>
+        </div>
+        <span class="status-pill ${remaining > 5 ? 'pill-ok' : 'pill-danger'}">المتبقي: ${remaining}</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-pay" onclick="openInvOutModal('${item.id}')">📤 صرف / بيع قطعة</button>
+        <button class="btn btn-edit" onclick="openInvModal('${item.id}')">✏️</button>
+        <button class="btn btn-del" onclick="deleteInventoryItem('${item.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openInvModal(id = null) {
+  if (id) {
+    const item = state.inventory.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('invId').value = item.id;
+    document.getElementById('invName').value = item.name;
+    document.getElementById('invTotalQty').value = item.totalQty;
+    document.getElementById('invRemainingQty').value = item.remainingQty;
+  } else {
+    document.getElementById('invId').value = '';
+    document.getElementById('invName').value = '';
+    document.getElementById('invTotalQty').value = '';
+    document.getElementById('invRemainingQty').value = '';
+  }
+  document.getElementById('invModal').style.display = 'flex';
+}
+
+function saveInventoryItem() {
+  const id = document.getElementById('invId').value, name = document.getElementById('invName').value.trim();
+  const totalQty = parseInt(document.getElementById('invTotalQty').value) || 0;
+  const remainingQty = document.getElementById('invRemainingQty').value !== '' ? parseInt(document.getElementById('invRemainingQty').value) : totalQty;
+  if (!name) return alert('أدخل اسم القطعة');
+  if (id) {
+    const idx = state.inventory.findIndex(i => i.id === id);
+    if (idx > -1) state.inventory[idx] = { ...state.inventory[idx], name, totalQty, remainingQty };
+  } else {
+    state.inventory.push({ id: 'inv_' + Date.now(), name, totalQty, remainingQty });
+  }
+  syncToStorage(); closeModal('invModal'); renderInventory();
+}
+
+function deleteInventoryItem(id) {
+  if (confirm('حذف هذه القطعة من المخزن؟')) {
+    state.inventory = state.inventory.filter(i => i.id !== id);
+    syncToStorage(); renderInventory();
+  }
+}
+
+function openInvOutModal(id) {
+  const item = state.inventory.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('outInvId').value = item.id;
+  document.getElementById('outQty').value = 1;
+  document.getElementById('outNotes').value = '';
+  document.getElementById('invOutSummary').innerHTML = `📦 القطعة: <b>${item.name}</b><br>🔢 المتبقي حالياً: <b>${item.remainingQty}</b>`;
+  document.getElementById('invOutModal').style.display = 'flex';
+}
+
+function confirmInventoryOut() {
+  const item = state.inventory.find(i => i.id === document.getElementById('outInvId').value);
+  if (!item) return;
+  const qty = parseInt(document.getElementById('outQty').value) || 0;
+  if (qty <= 0 || qty > item.remainingQty) return alert('الكمية غير صحيحة أو أكبر من المتبقي!');
+  item.remainingQty -= qty;
+  syncToStorage(); closeModal('invOutModal'); renderInventory();
+}
+
+function formatPhoneForWA(rawPhone) {
+  if (!rawPhone) return '';
+  let digits = rawPhone.replace(/[^0-9]/g, '');
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  if (digits.length === 8 && /^(03|70|71|76|78|79|81)/.test(digits)) {
+    if (digits.startsWith('0')) digits = digits.slice(1);
+    digits = '961' + digits;
+  } else if (digits.length === 7 && digits.startsWith('3')) digits = '961' + digits;
+  return digits;
+}
+
+function buildWhatsAppLink(s) {
+  const phone = formatPhoneForWA(s.phone);
+  if (!phone) return '#';
+  const p = parseYMD(s.expiry), formattedDate = `${p.d}/${p.m}/${p.y}`;
+  const debtAmount = s.balance < 0 ? Math.abs(s.balance) : 0, totalRequired = s.pkgPrice + debtAmount;
+  const debtLine = debtAmount > 0 ? `\n⚠️ متبقي رصيد سابق (دين): *${debtAmount}$*\n💰 الإجمالي المطلوب مع التجديد: *${totalRequired}$*` : '';
+  let msg = (state.settings.waTemplate || DEFAULT_WA_TEMPLATE)
+    .replace(/\{الاسم\}/g, s.name).replace(/\{الشركة\}/g, state.settings.companyName || 'Wire.Net')
+    .replace(/\{الباقة\}/g, s.pkgName).replace(/\{السعر\}/g, s.pkgPrice)
+    .replace(/\{التاريخ\}/g, formattedDate).replace(/\{العنوان\}/g, s.address || '-')
+    .replace(/\{الدين\}/g, debtAmount).replace(/\{الإجمالي\}/g, totalRequired).replace(/\{سطر_الدين\}/g, debtLine);
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+}
+
+function openBulkModal() {
+  const selectedList = state.subscribers.filter(s => selectedSubIds.has(s.id) && s.phone && s.phone !== '0');
+  if (!selectedList.length) return alert('اختر مشتركين لديهم أرقام هواتف مسجلة');
+  sentInQueueIds.clear();
+  document.getElementById('modalBulkTotal').innerText = selectedList.length;
+  document.getElementById('unifiedMsgInput').value = `مرحباً مشتركينا الكرام في *${state.settings.companyName || 'Wire.Net'}*،\nنود تذكيركم بموعد تسديد اشتراك الإنترنت الشهري لضمان استمرار الخدمة. شكراً لتواجدكم معنا.`;
+  switchBulkMode('queue');
+  document.getElementById('bulkModal').style.display = 'flex';
+}
+
+function switchBulkMode(mode) {
+  document.getElementById('btnModeQueue').classList.toggle('active', mode === 'queue');
+  document.getElementById('btnModeUnified').classList.toggle('active', mode === 'unified');
+  document.getElementById('bulkQueueSection').style.display = mode === 'queue' ? 'block' : 'none';
+  document.getElementById('bulkUnifiedSection').style.display = mode === 'unified' ? 'block' : 'none';
+  if (mode === 'queue') renderQueueList();
+}
+
+function renderQueueList() {
+  const selectedList = state.subscribers.filter(s => selectedSubIds.has(s.id) && s.phone && s.phone !== '0');
+  const nextSub = selectedList.find(s => !sentInQueueIds.has(s.id));
+  document.getElementById('queueListContainer').innerHTML = selectedList.map((s, idx) => {
+    const isSent = sentInQueueIds.has(s.id), isNext = nextSub && nextSub.id === s.id;
+    return `<div class="queue-item ${isSent ? 'sent' : ''} ${isNext ? 'current-turn' : ''}">
+      <div><div style="font-weight:800;font-size:0.9rem">${idx + 1}. ${s.name}</div><div style="font-size:0.75rem;color:var(--muted)">${s.pkgName} (${s.pkgPrice}$)</div></div>
+      <a href="${buildWhatsAppLink(s)}" target="_blank" class="btn ${isSent ? 'btn-edit' : 'btn-wa'}" onclick="markQueueSent('${s.id}')">${isSent ? '✅ تم' : (isNext ? '📲 إرسال ⏭️' : '💬 إرسال')}</a>
+    </div>`;
+  }).join('');
+}
+function markQueueSent(id) { sentInQueueIds.add(id); setTimeout(renderQueueList, 300); }
+function sendUnifiedBroadcast() {
+  const msg = document.getElementById('unifiedMsgInput').value.trim();
+  if (msg) window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function copySelectedNumbers() {
+  const nums = state.subscribers.filter(s => selectedSubIds.has(s.id) && s.phone).map(s => formatPhoneForWA(s.phone)).join('\n');
+  navigator.clipboard.writeText(nums).then(() => alert('✅ تم نسخ الأرقام!'));
+}
+
+function insertTag(tag) {
+  const ta = document.getElementById('setWaTemplate'), start = ta.selectionStart;
+  ta.value = ta.value.substring(0, start) + tag + ta.value.substring(ta.selectionEnd);
+  ta.focus();
+}
+function saveGeneralSettings() {
+  state.settings.companyName = document.getElementById('setCompanyName').value.trim() || 'Wire.Net';
+  state.settings.waTemplate = document.getElementById('setWaTemplate').value.trim() || DEFAULT_WA_TEMPLATE;
+  syncToStorage(); applyCompanyBranding(); render(); alert('✅ تم الحفظ بنجاح!');
+}
+function resetWaTemplate() { document.getElementById('setWaTemplate').value = DEFAULT_WA_TEMPLATE; }
+
+function populatePackageDropdown(selectedName, selectedPrice) {
+  const sel = document.getElementById('subPkgSelect');
+  sel.innerHTML = `<option value="">-- اختر باقة جاهزة أو عدّل يدوياً --</option>` + state.packages.map(pkg => `<option value="${pkg.id}">${pkg.name} - ${pkg.price}$</option>`).join('');
+  if (selectedName !== undefined) {
+    document.getElementById('subPkgName').value = selectedName;
+    document.getElementById('subPkgPrice').value = selectedPrice;
+  } else if (state.packages.length) {
+    sel.value = state.packages[0].id;
+    document.getElementById('subPkgName').value = state.packages[0].name;
+    document.getElementById('subPkgPrice').value = state.packages[0].price;
+  }
+}
+function onSelectPackagePreset() {
+  const pkg = state.packages.find(p => p.id === document.getElementById('subPkgSelect').value);
+  if (pkg) { document.getElementById('subPkgName').value = pkg.name; document.getElementById('subPkgPrice').value = pkg.price; }
+}
+
+function openSubModal(id = null) {
+  if (id) {
+    const s = state.subscribers.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('subModalTitle').innerText = 'تعديل بيانات المشترك';
+    document.getElementById('subId').value = s.id;
+    document.getElementById('subName').value = s.name;
+    document.getElementById('subPhone').value = s.phone === '0' ? '' : (s.phone || '');
+    document.getElementById('subAddress').value = s.address || '';
+    populatePackageDropdown(s.pkgName, s.pkgPrice);
+    setDateSelectors(s.expiry);
+    document.getElementById('subBalance').value = s.balance || 0;
+  } else {
+    document.getElementById('subModalTitle').innerText = 'إضافة مشترك جديد';
+    document.getElementById('subId').value = '';
+    document.getElementById('subName').value = '';
+    document.getElementById('subPhone').value = '';
+    document.getElementById('subAddress').value = '';
+    populatePackageDropdown();
+    const t = getTodayParts();
+    setDateSelectors(addMonthsStrict(formatYMD(t.y, t.m, t.d), 1, t.d));
+    document.getElementById('subBalance').value = 0;
+  }
+  document.getElementById('subModal').style.display = 'flex';
+}
+
+function saveSubscriber() {
+  const id = document.getElementById('subId').value, name = document.getElementById('subName').value.trim();
+  const phone = document.getElementById('subPhone').value.trim(), address = document.getElementById('subAddress').value.trim();
+  const pkgName = document.getElementById('subPkgName').value.trim() || 'عادية', pkgPrice = parseFloat(document.getElementById('subPkgPrice').value) || 0;
+  const expiry = getDateFromSelectors(), balance = parseFloat(document.getElementById('subBalance').value) || 0, anchorDay = parseInt(document.getElementById('expDay').value);
+  if (!name) return alert('أدخل اسم المشترك');
+  if (id) {
+    const idx = state.subscribers.findIndex(x => x.id === id);
+    if (idx > -1) state.subscribers[idx] = { ...state.subscribers[idx], name, phone, address, pkgName, pkgPrice, expiry, balance, anchorDay };
+  } else {
+    state.subscribers.push({ id: 'sub_' + Date.now(), name, phone, address, pkgName, pkgPrice, expiry, balance, anchorDay });
+  }
+  syncToStorage(); closeModal('subModal'); render();
+}
+
+function deleteSubscriber(id) {
+  const s = state.subscribers.find(x => x.id === id);
+  if (s && confirm(`حذف المشترك "${s.name}"؟`)) {
+    state.subscribers = state.subscribers.filter(x => x.id !== id);
+    selectedSubIds.delete(id); syncToStorage(); render();
+  }
+}
+
+function openPayModal(id) {
+  const s = state.subscribers.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('paySubId').value = s.id;
+  document.getElementById('payModalTitle').innerText = `تسجيل دفعة: ${s.name}`;
+  document.getElementById('payMonths').value = '1';
+  document.getElementById('payDateMode').value = 'preserve';
+  const prevDebt = s.balance < 0 ? Math.abs(s.balance) : 0;
+  document.getElementById('paySubSummary').innerHTML = `📦 الباقة: <b>${s.pkgName} (${s.pkgPrice}$)</b><br>📅 الانتهاء: <b dir="ltr">${s.expiry}</b><br>💳 الدين السابق: <b style="color:${prevDebt > 0 ? 'var(--danger)' : 'var(--success)'}">${prevDebt}$</b>`;
+  recalcPaymentModal();
+  document.getElementById('payModal').style.display = 'flex';
+}
+
+function recalcPaymentModal() {
+  const s = state.subscribers.find(x => x.id === document.getElementById('paySubId').value);
+  if (!s) return;
+  const months = parseInt(document.getElementById('payMonths').value), prevDebt = s.balance < 0 ? Math.abs(s.balance) : 0;
+  document.getElementById('payAmountInput').value = Math.max(0, (s.pkgPrice * months) + prevDebt - (s.balance > 0 ? s.balance : 0));
+  recalcPaymentPreview();
+}
+
+function recalcPaymentPreview() {
+  const s = state.subscribers.find(x => x.id === document.getElementById('paySubId').value);
+  if (!s) return;
+  const months = parseInt(document.getElementById('payMonths').value), mode = document.getElementById('payDateMode').value;
+  const paid = parseFloat(document.getElementById('payAmountInput').value) || 0, newBalance = (s.balance || 0) + (paid - (s.pkgPrice * months));
+  const t = getTodayParts(), baseDate = mode === 'today' ? formatYMD(t.y, t.m, t.d) : s.expiry;
+  const newExpiry = addMonthsStrict(baseDate, months, s.anchorDay || parseYMD(s.expiry).d);
+  const box = document.getElementById('payPreviewBox');
+  if (newBalance === 0) { box.style.background = 'var(--success-light)'; box.style.color = 'var(--success)'; box.innerHTML = `✅ دفعة كاملة (الرصيد 0$)`; }
+  else if (newBalance < 0) { box.style.background = 'var(--danger-light)'; box.style.color = 'var(--danger)'; box.innerHTML = `⚠️ دفع جزئي: سيتبقى عليه دين ${Math.abs(newBalance)}$`; }
+  else { box.style.background = 'var(--primary-light)'; box.style.color = 'var(--primary)'; box.innerHTML = `➕ دفع زيادة: رصيد له +${newBalance}$`; }
+  box.innerHTML += `<br>📅 الانتهاء الجديد: <span dir="ltr">${newExpiry}</span>`;
+}
+
+function confirmPayment() {
+  const s = state.subscribers.find(x => x.id === document.getElementById('paySubId').value);
+  if (!s) return;
+  const months = parseInt(document.getElementById('payMonths').value), mode = document.getElementById('payDateMode').value, paid = parseFloat(document.getElementById('payAmountInput').value) || 0;
+  if (paid > 0) {
+    const now = new Date();
+    state.paymentsHistory.push({ subName: s.name, amount: paid, timestamp: now.toISOString(), dateStr: `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`, notes: months > 0 ? `تجديد اشتراك (${months} أشهر)` : `تسديد جزئي / دين` });
+  }
+  s.balance = (s.balance || 0) + (paid - (s.pkgPrice * months));
+  const t = getTodayParts(), baseDate = mode === 'today' ? formatYMD(t.y, t.m, t.d) : s.expiry;
+  if (mode === 'today') s.anchorDay = t.d;
+  s.expiry = addMonthsStrict(baseDate, months, s.anchorDay || parseYMD(s.expiry).d);
+  syncToStorage(); closeModal('payModal'); render();
+}
+
+function renderPackages() {
+  document.getElementById('packagesList').innerHTML = state.packages.map(pkg => `<div class="pkg-item"><div><strong>${pkg.name}</strong> — <span style="color:var(--primary);font-weight:bold">${pkg.price}$</span></div><div style="display:flex;gap:6px"><button class="btn btn-edit" onclick="editPackage('${pkg.id}')">✏️</button><button class="btn btn-del" onclick="deletePackage('${pkg.id}')">🗑️</button></div></div>`).join('');
+}
+function savePackage() {
+  const id = document.getElementById('editPkgId').value, name = document.getElementById('pkgNameInput').value.trim(), price = parseFloat(document.getElementById('pkgPriceInput').value) || 0;
+  if (!name) return alert('أدخل اسم الباقة');
+  if (id) { const idx = state.packages.findIndex(p => p.id === id); if (idx > -1) state.packages[idx] = { id, name, price }; }
+  else state.packages.push({ id: 'pkg_' + Date.now(), name, price });
+  document.getElementById('editPkgId').value = ''; document.getElementById('pkgNameInput').value = ''; document.getElementById('pkgPriceInput').value = '';
+  syncToStorage(); renderPackages();
+}
+function editPackage(id) {
+  const pkg = state.packages.find(p => p.id === id);
+  if (pkg) { document.getElementById('editPkgId').value = pkg.id; document.getElementById('pkgNameInput').value = pkg.name; document.getElementById('pkgPriceInput').value = pkg.price; }
+}
+function deletePackage(id) { state.packages = state.packages.filter(p => p.id !== id); syncToStorage(); renderPackages(); }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `zeinex_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+function importBackup(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imp = JSON.parse(ev.target.result);
+      if (imp.subscribers) state.subscribers = imp.subscribers;
+      if (imp.packages) state.packages = imp.packages;
+      if (imp.employees) state.employees = imp.employees;
+      if (imp.inventory) state.inventory = imp.inventory;
+      if (imp.paymentsHistory) state.paymentsHistory = imp.paymentsHistory;
+      if (imp.settings) state.settings = { ...state.settings, ...imp.settings };
+      syncToStorage(); applyCompanyBranding(); applyViewModeUI(); render();
+      alert('✅ تم استعادة البيانات بنجاح!');
+    } catch (err) { alert('❌ الملف غير صالح'); }
+  };
+  reader.readAsText(file);
+}
+function downloadSelfApp() {
+  lockApp();
+  const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  document.getElementById('lockScreen').style.display = 'none';
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'zeinex.html'; a.click();
+}
+
+initDatabase();
+</script>
+
+
+</body></html>
