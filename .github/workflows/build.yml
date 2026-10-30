@@ -17,12 +17,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Web App to APK with PWABuilder CLI
+      - name: Build Web App to APK with npx pwabuilder
         run: |
-          npm install -g @pwabuilder/cli
-          # إضافة مسار النمب للوصول المباشر للأمر
-          export PATH="$(npm config get prefix)/bin:$PATH"
-          pwabuilder generate --name "Zeinex" --short_name "Zeinex" --start_url "https://localhost/index.html" --theme_color "#0f172a" --background_color "#0f172a" --display "standalone" --orientation "portrait"
+          npx @pwabuilder/cli generate --name "Zeinex" --short_name "Zeinex" --start_url "https://localhost/index.html" --theme_color "#0f172a" --background_color "#0f172a" --display "standalone" --orientation "portrait"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
