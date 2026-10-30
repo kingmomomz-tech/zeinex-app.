@@ -1,0 +1,29 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Web App to APK with PWABuilder CLI
+        run: |
+          npm install -g @pwabuilder/cli
+          pwabuilder generate --name "Zeinex" --short_name "Zeinex" --start_url "https://localhost/index.html" --theme_color "#0f172a" --background_color "#0f172a" --display "standalone" --orientation "portrait"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zeinex-APK
+          path: output/android/
