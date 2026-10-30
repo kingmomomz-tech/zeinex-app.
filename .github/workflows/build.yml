@@ -11,23 +11,47 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Build APK using webapp-to-apk
+      - name: Create Web Manifest
         run: |
-          npx webapp-to-apk --manifest ./index.html --app-name "Zeinex" --package-name "com.zeinex.app" --icon ./index.html
+          cat << 'EOF' > manifest.json
+          {
+            "name": "Zeinex",
+            "short_name": "Zeinex",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#0f172a",
+            "icons": []
+          }
+          EOF
+
+      - name: Build APK via PWABuilder API
+        run: |
+          mkdir -p output
+          # إرسال طلب بناء التطبيق لخدمة مايكروسوفت سحابياً
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{"name": "Zeinex", "url": "https://raw.githubusercontent.com/${{ github.repository }}/master/index.html", "packageId": "com.zeinex.app"}' \
+          https://pwabuilder-android-generator.azurewebsites.net/generateoptions > options.json || true
+
+          # تحميل الحزمة الجاهزة
+          curl -o output/android.zip https://pwabuilder-android-generator.azurewebsites.net/generate -F "options=@options.json" || true
+          
+          # فك الضغط استخراج الـ APK
+          cd output
+          if [ -f android.zip ]; then
+            unzip -o android.zip
+          fi
+          ls -la
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Zeinex-APK
-          path: output/*.apk
+          path: |
+            output/**/*.apk
+            output/android.zip
